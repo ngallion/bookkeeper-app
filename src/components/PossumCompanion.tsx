@@ -78,9 +78,11 @@ export function PossumCompanion({ isSearching = false, activeTab }: PossumCompan
   useEffect(() => {
     if (activeTab !== prevTabRef.current) {
       prevTabRef.current = activeTab;
-      if (moodRef.current === "idle") {
-        setIdleFrame((f) => (f + 1) % IDLE_IMAGES.length);
-      }
+      setTimeout(() => {
+        if (moodRef.current === "idle") {
+          setIdleFrame((f) => (f + 1) % IDLE_IMAGES.length);
+        }
+      }, 0);
     }
   }, [activeTab]);
 
@@ -98,21 +100,23 @@ export function PossumCompanion({ isSearching = false, activeTab }: PossumCompan
     if (isSearching) {
       clearSleepTimers();
       if (celebrateTimerRef.current) clearTimeout(celebrateTimerRef.current);
-      if (moodRef.current !== "petting") {
-        changeMood("searching");
-      }
+      setTimeout(() => {
+        if (moodRef.current !== "petting") changeMood("searching");
+      }, 0);
     } else {
-      if (moodRef.current === "searching") {
-        changeMood("idle");
-        startSleepTimers();
-      }
+      setTimeout(() => {
+        if (moodRef.current === "searching") {
+          changeMood("idle");
+          startSleepTimers();
+        }
+      }, 0);
     }
   }, [isSearching, clearSleepTimers, changeMood, startSleepTimers]);
 
   // Celebrate when a new book is marked as read
   useEffect(() => {
     if (readBooks.length > prevReadCountRef.current) {
-      celebrate();
+      setTimeout(() => celebrate(), 0);
     }
     prevReadCountRef.current = readBooks.length;
   }, [readBooks.length, celebrate]);
@@ -141,9 +145,16 @@ export function PossumCompanion({ isSearching = false, activeTab }: PossumCompan
   })();
 
   return (
+    <>
+      <style>{`
+        @keyframes possum-float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-5px); }
+        }
+      `}</style>
     <div
-      className="fixed bottom-6 left-6 z-[60] select-none touch-none cursor-pointer"
-      style={{ width: 96, height: 96 }}
+      className="fixed bottom-6 left-6 z-60 select-none touch-none cursor-pointer"
+      style={{ width: 96, height: 96, animation: "possum-float 3s ease-in-out infinite" }}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
@@ -155,5 +166,6 @@ export function PossumCompanion({ isSearching = false, activeTab }: PossumCompan
         className="w-full h-full object-contain drop-shadow-lg"
       />
     </div>
+    </>
   );
 }
