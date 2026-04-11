@@ -1,8 +1,15 @@
 import { useState } from "react";
-import { BookMarked, BookCheck, Plus, HardDriveDownload } from "lucide-react";
+import {
+  BookMarked,
+  BookCheck,
+  Plus,
+  HardDriveDownload,
+  Settings,
+} from "lucide-react";
 import { useBookStore } from "./store/bookStore";
 import { WishlistView } from "./components/WishlistView";
 import { ReadBooksView } from "./components/ReadBooksView";
+import { SettingsModal } from "./components/SettingsView";
 import { SearchModal } from "./components/SearchModal";
 import { ImportExportModal } from "./components/ImportExportModal";
 import { UpdateBanner } from "./components/UpdateBanner";
@@ -17,6 +24,7 @@ export default function App() {
   const [scannerOpen, setScannerOpen] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { wishlist, readBooks } = useBookStore();
 
   return (
@@ -30,6 +38,13 @@ export default function App() {
               Bookkeeper
             </span>
           </div>
+          <button
+            onClick={() => setSettingsOpen(true)}
+            title="Settings"
+            className="w-9 h-9 rounded-xl bg-ink-700 hover:bg-ink-600 text-paper-300/60 hover:text-paper-100 transition-all border border-paper-300/10 flex items-center justify-center"
+          >
+            <Settings size={16} />
+          </button>
           <button
             onClick={() => setBackupOpen(true)}
             title="Backup & Restore"
@@ -97,10 +112,16 @@ export default function App() {
         open={backupOpen}
         onClose={() => setBackupOpen(false)}
       />
-      <PossumCompanion
-        isSearching={searchOpen || scannerOpen || detailOpen}
-        activeTab={tab}
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
       />
+      <div className={`transition-opacity duration-300 ${settingsOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
+        <PossumCompanion
+          isSearching={searchOpen || scannerOpen || detailOpen}
+          activeTab={tab}
+        />
+      </div>
     </div>
   );
 }
@@ -116,7 +137,7 @@ function TabButton({
   onClick: () => void;
   icon: React.ReactNode;
   label: string;
-  count: number;
+  count?: number;
 }) {
   return (
     <button
@@ -129,7 +150,7 @@ function TabButton({
     >
       {icon}
       {label}
-      {count > 0 && (
+      {count !== undefined && count > 0 && (
         <span
           className={`text-xs px-1.5 py-0.5 rounded-full ${
             active
