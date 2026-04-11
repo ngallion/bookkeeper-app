@@ -10,11 +10,18 @@ import type { ReadBook } from "../types/book";
 
 type SortKey = "dateRead" | "rating" | "title";
 
-export function ReadBooksView() {
+interface ReadBooksViewProps {
+  onDetailOpenChange?: (open: boolean) => void;
+}
+
+export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
   const { readBooks, removeFromRead } = useBookStore();
   const [sort, setSort] = useState<SortKey>("dateRead");
   const [query, setQuery] = useState("");
   const [detailBook, setDetailBook] = useState<ReadBook | null>(null);
+
+  const openDetail = (book: ReadBook) => { setDetailBook(book); onDetailOpenChange?.(true); };
+  const closeDetail = () => { setDetailBook(null); onDetailOpenChange?.(false); };
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
   useLayoutEffect(() => {
@@ -145,7 +152,7 @@ export function ReadBooksView() {
                 <div className="bg-ink-700 rounded-xl p-4 border border-paper-300/5 hover:border-paper-300/10 transition-colors">
                   <div className="flex gap-4">
                     <button
-                      onClick={() => setDetailBook(book)}
+                      onClick={() => openDetail(book)}
                       className="shrink-0 hover:opacity-80 transition-opacity"
                     >
                       <BookCover
@@ -157,7 +164,7 @@ export function ReadBooksView() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <button
-                          onClick={() => setDetailBook(book)}
+                          onClick={() => openDetail(book)}
                           className="min-w-0 text-left hover:opacity-80 transition-opacity"
                         >
                           <h3 className="text-paper-100 font-semibold leading-tight truncate">
@@ -173,7 +180,7 @@ export function ReadBooksView() {
                         </button>
                         <div className="flex gap-1 shrink-0">
                           <button
-                            onClick={() => setDetailBook(book)}
+                            onClick={() => openDetail(book)}
                             className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-amber-400/20 text-paper-300/50 hover:text-amber-400 flex items-center justify-center transition-colors"
                           >
                             <Pencil size={14} />
@@ -220,7 +227,7 @@ export function ReadBooksView() {
       {detailBook && (
         <ReadBookDetailModal
           book={detailBook}
-          onClose={() => setDetailBook(null)}
+          onClose={closeDetail}
         />
       )}
     </div>

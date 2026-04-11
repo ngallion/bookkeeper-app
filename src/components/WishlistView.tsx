@@ -10,7 +10,11 @@ import type { WishlistBook } from "../types/book";
 
 type SortKey = "score" | "title" | "addedAt";
 
-export function WishlistView() {
+interface WishlistViewProps {
+  onDetailOpenChange?: (open: boolean) => void;
+}
+
+export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
   const {
     wishlist,
     removeFromWishlist,
@@ -21,6 +25,9 @@ export function WishlistView() {
   const [query, setQuery] = useState("");
   const [markReadBook, setMarkReadBook] = useState<WishlistBook | null>(null);
   const [detailBook, setDetailBook] = useState<WishlistBook | null>(null);
+
+  const openDetail = (book: WishlistBook) => { setDetailBook(book); onDetailOpenChange?.(true); };
+  const closeDetail = () => { setDetailBook(null); onDetailOpenChange?.(false); };
   const [tagInput, setTagInput] = useState<Record<string, string>>({});
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
@@ -164,7 +171,7 @@ export function WishlistView() {
                 <div className="bg-ink-700 rounded-xl p-4 border border-paper-300/5 hover:border-paper-300/10 transition-colors">
                   <div className="flex gap-4">
                     <button
-                      onClick={() => setDetailBook(book)}
+                      onClick={() => openDetail(book)}
                       className="shrink-0 hover:opacity-80 transition-opacity"
                     >
                       <BookCover
@@ -176,7 +183,7 @@ export function WishlistView() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <button
-                          onClick={() => setDetailBook(book)}
+                          onClick={() => openDetail(book)}
                           className="min-w-0 text-left hover:opacity-80 transition-opacity"
                         >
                           <h3 className="text-paper-100 font-semibold leading-tight truncate">
@@ -274,7 +281,7 @@ export function WishlistView() {
       {detailBook && (
         <BookDetailModal
           book={detailBook}
-          onClose={() => setDetailBook(null)}
+          onClose={closeDetail}
         />
       )}
     </div>

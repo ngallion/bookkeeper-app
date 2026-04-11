@@ -16,12 +16,16 @@ const BarcodeScannerModal = lazy(() =>
 interface SearchModalProps {
   open: boolean;
   onClose: () => void;
+  onScannerOpenChange?: (open: boolean) => void;
 }
 
-export function SearchModal({ open, onClose }: SearchModalProps) {
+export function SearchModal({ open, onClose, onScannerOpenChange }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+
+  const openScanner = () => { setScannerOpen(true); onScannerOpenChange?.(true); };
+  const closeScanner = () => { setScannerOpen(false); onScannerOpenChange?.(false); };
   const [manualOpen, setManualOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { addToWishlist, isInWishlist, isRead } = useBookStore();
@@ -69,7 +73,7 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
       <Suspense fallback={null}>
         <BarcodeScannerModal
           open={scannerOpen}
-          onClose={() => setScannerOpen(false)}
+          onClose={closeScanner}
         />
       </Suspense>
       <div
@@ -96,7 +100,7 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
               <div className="w-4 h-4 border-2 border-amber-400/40 border-t-amber-400 rounded-full animate-spin shrink-0" />
             )}
             <button
-              onClick={() => setScannerOpen(true)}
+              onClick={openScanner}
               title="Scan barcode"
               className="text-paper-300/50 hover:text-amber-400 transition-colors shrink-0"
             >

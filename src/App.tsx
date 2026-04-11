@@ -7,12 +7,15 @@ import { SearchModal } from "./components/SearchModal";
 import { ImportExportModal } from "./components/ImportExportModal";
 import { UpdateBanner } from "./components/UpdateBanner";
 import { BackupReminderBanner } from "./components/BackupReminderBanner";
+import { PossumCompanion } from "./components/PossumCompanion";
 
 type Tab = "wishlist" | "read";
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("wishlist");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [backupOpen, setBackupOpen] = useState(false);
   const { wishlist, readBooks } = useBookStore();
 
@@ -68,7 +71,9 @@ export default function App() {
 
       {/* Content */}
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
-        {tab === "wishlist" ? <WishlistView /> : <ReadBooksView />}
+        {tab === "wishlist"
+          ? <WishlistView onDetailOpenChange={setDetailOpen} />
+          : <ReadBooksView onDetailOpenChange={setDetailOpen} />}
       </main>
 
       {/* FAB — mobile only */}
@@ -79,13 +84,14 @@ export default function App() {
         <Plus size={24} />
       </button>
 
-      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} onScannerOpenChange={setScannerOpen} />
       <UpdateBanner />
       <BackupReminderBanner onExport={() => setBackupOpen(true)} />
       <ImportExportModal
         open={backupOpen}
         onClose={() => setBackupOpen(false)}
       />
+      <PossumCompanion isSearching={searchOpen || scannerOpen || detailOpen} activeTab={tab} />
     </div>
   );
 }
