@@ -30,20 +30,28 @@ export function ImportExportModal({ open, onClose }: ImportExportModalProps) {
 
   if (!open) return null;
 
-  const handleExport = () => {
+  const handleExport = async () => {
     const backup = {
       version: 1,
       exportedAt: new Date().toISOString(),
       wishlist,
       readBooks,
     };
+    const filename = `bookkeeper-backup-${new Date().toISOString().slice(0, 10)}.json`;
     const blob = new Blob([JSON.stringify(backup, null, 2)], {
       type: "application/json",
     });
+
+    const file = new File([blob], filename, { type: "application/json" });
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({ files: [file], title: "Bookkeeper backup" });
+      return;
+    }
+
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `bookkeeper-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
   };

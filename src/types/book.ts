@@ -18,6 +18,7 @@ export interface WishlistBook {
   addedAt: string;
   firstPublishYear?: number;
   pages?: number;
+  notes?: string;
 }
 
 export interface ReadBook {

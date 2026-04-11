@@ -5,11 +5,22 @@ import type { WishlistBook, ReadBook } from "../types/book";
 interface BookStore {
   wishlist: WishlistBook[];
   readBooks: ReadBook[];
+  totalBooksAdded: number;
+  lastBackupPromptAt: number;
 
   addToWishlist: (book: Omit<WishlistBook, "addedAt">) => void;
   removeFromWishlist: (id: string) => void;
   updateWishlistScore: (id: string, score: number) => void;
   updateWishlistTags: (id: string, tags: string[]) => void;
+  updateWishlistBook: (
+    id: string,
+    updates: Partial<
+      Pick<
+        WishlistBook,
+        "title" | "author" | "firstPublishYear" | "pages" | "notes"
+      >
+    >,
+  ) => void;
 
   markAsRead: (book: Omit<ReadBook, "addedAt">) => void;
   moveToRead: (
@@ -23,6 +34,8 @@ interface BookStore {
     id: string,
     updates: Partial<Pick<ReadBook, "rating" | "notes" | "dateRead">>,
   ) => void;
+
+  dismissBackupReminder: () => void;
 
   isInWishlist: (id: string) => boolean;
   isRead: (id: string) => boolean;
@@ -38,6 +51,8 @@ export const useBookStore = create<BookStore>()(
     (set, get) => ({
       wishlist: [],
       readBooks: [],
+      totalBooksAdded: 0,
+      lastBackupPromptAt: 0,
 
       addToWishlist: (book) => {
         if (get().isInWishlist(book.id) || get().isRead(book.id)) return;
@@ -46,6 +61,7 @@ export const useBookStore = create<BookStore>()(
             { ...book, addedAt: new Date().toISOString() },
             ...s.wishlist,
           ],
+          totalBooksAdded: s.totalBooksAdded + 1,
         }));
       },
 
@@ -62,6 +78,13 @@ export const useBookStore = create<BookStore>()(
           wishlist: s.wishlist.map((b) => (b.id === id ? { ...b, tags } : b)),
         })),
 
+      updateWishlistBook: (id, updates) =>
+        set((s) => ({
+          wishlist: s.wishlist.map((b) =>
+            b.id === id ? { ...b, ...updates } : b,
+          ),
+        })),
+
       markAsRead: (book) => {
         if (get().isRead(book.id)) return;
         set((s) => ({
@@ -69,12 +92,14 @@ export const useBookStore = create<BookStore>()(
             { ...book, addedAt: new Date().toISOString() },
             ...s.readBooks,
           ],
+          totalBooksAdded: s.totalBooksAdded + 1,
         }));
       },
 
       moveToRead: (wishlistId, rating, notes, dateRead) => {
         const book = get().wishlist.find((b) => b.id === wishlistId);
         if (!book) return;
+        // Moving wishlist → read doesn't count as a new addition
         set((s) => ({
           wishlist: s.wishlist.filter((b) => b.id !== wishlistId),
           readBooks: [
@@ -104,6 +129,9 @@ export const useBookStore = create<BookStore>()(
             b.id === id ? { ...b, ...updates } : b,
           ),
         })),
+
+      dismissBackupReminder: () =>
+        set((s) => ({ lastBackupPromptAt: s.totalBooksAdded })),
 
       isInWishlist: (id) => get().wishlist.some((b) => b.id === id),
       isRead: (id) => get().readBooks.some((b) => b.id === id),

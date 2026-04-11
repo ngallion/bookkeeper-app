@@ -26,3 +26,18 @@ export async function lookupByISBN(
 export function coverUrl(coverId: number, size: "S" | "M" | "L" = "M"): string {
   return `https://covers.openlibrary.org/b/id/${coverId}-${size}.jpg`;
 }
+
+export async function fetchWorkDescription(
+  workKey: string,
+): Promise<string | null> {
+  const url = `${BASE}${workKey}.json`;
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const data = await res.json();
+  const desc = data.description;
+  if (!desc) return null;
+  if (typeof desc === "string") return desc;
+  if (typeof desc === "object" && typeof desc.value === "string")
+    return desc.value;
+  return null;
+}

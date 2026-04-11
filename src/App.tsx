@@ -1,16 +1,12 @@
 import { useState } from "react";
-import {
-  Search,
-  BookMarked,
-  BookCheck,
-  Plus,
-  HardDriveDownload,
-} from "lucide-react";
+import { BookMarked, BookCheck, Plus, HardDriveDownload } from "lucide-react";
 import { useBookStore } from "./store/bookStore";
 import { WishlistView } from "./components/WishlistView";
 import { ReadBooksView } from "./components/ReadBooksView";
 import { SearchModal } from "./components/SearchModal";
 import { ImportExportModal } from "./components/ImportExportModal";
+import { UpdateBanner } from "./components/UpdateBanner";
+import { BackupReminderBanner } from "./components/BackupReminderBanner";
 
 type Tab = "wishlist" | "read";
 
@@ -40,14 +36,8 @@ export default function App() {
           </button>
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-ink-700 hover:bg-ink-600 text-paper-300/60 hover:text-paper-100 transition-all border border-paper-300/10 text-sm"
-          >
-            <Search size={15} />
-            <span className="hidden sm:inline">Find a book</span>
-          </button>
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="sm:hidden w-9 h-9 rounded-xl bg-amber-400 hover:bg-amber-300 text-ink-900 flex items-center justify-center transition-colors"
+            title="Add a book"
+            className="hidden sm:flex w-9 h-9 rounded-xl bg-amber-400 hover:bg-amber-300 text-ink-900 items-center justify-center transition-colors"
           >
             <Plus size={18} />
           </button>
@@ -55,7 +45,7 @@ export default function App() {
       </header>
 
       {/* Tabs */}
-      <div className="sticky top-[57px] z-30 bg-ink-800/90 backdrop-blur-md border-b border-paper-300/10">
+      <div className="sticky top-14.25 z-30 bg-ink-800/90 backdrop-blur-md border-b border-paper-300/10">
         <div className="max-w-2xl mx-auto px-4">
           <div className="flex gap-1">
             <TabButton
@@ -81,7 +71,7 @@ export default function App() {
         {tab === "wishlist" ? <WishlistView /> : <ReadBooksView />}
       </main>
 
-      {/* FAB — add book on mobile */}
+      {/* FAB — mobile only */}
       <button
         onClick={() => setSearchOpen(true)}
         className="fixed bottom-6 right-6 sm:hidden w-14 h-14 rounded-full bg-amber-400 hover:bg-amber-300 text-ink-900 shadow-lg shadow-amber-400/30 flex items-center justify-center transition-all active:scale-95"
@@ -90,6 +80,8 @@ export default function App() {
       </button>
 
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <UpdateBanner />
+      <BackupReminderBanner onExport={() => setBackupOpen(true)} />
       <ImportExportModal
         open={backupOpen}
         onClose={() => setBackupOpen(false)}
