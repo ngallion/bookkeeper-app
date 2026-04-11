@@ -35,7 +35,13 @@ interface BookStore {
     updates: Partial<
       Pick<
         ReadBook,
-        "title" | "author" | "rating" | "notes" | "dateRead" | "firstPublishYear" | "pages"
+        | "title"
+        | "author"
+        | "rating"
+        | "notes"
+        | "dateRead"
+        | "firstPublishYear"
+        | "pages"
       >
     >,
   ) => void;

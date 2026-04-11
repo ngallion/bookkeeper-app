@@ -12,7 +12,10 @@ interface ReadBookDetailModalProps {
   onClose: () => void;
 }
 
-export function ReadBookDetailModal({ book, onClose }: ReadBookDetailModalProps) {
+export function ReadBookDetailModal({
+  book,
+  onClose,
+}: ReadBookDetailModalProps) {
   const { updateReadBook, removeFromRead } = useBookStore();
 
   const [title, setTitle] = useState(book.title);
@@ -47,7 +50,8 @@ export function ReadBookDetailModal({ book, onClose }: ReadBookDetailModalProps)
     updateReadBook(book.id, {
       title: title.trim() || book.title,
       author: author.trim() || book.author,
-      firstPublishYear: parsedYear && !isNaN(parsedYear) ? parsedYear : undefined,
+      firstPublishYear:
+        parsedYear && !isNaN(parsedYear) ? parsedYear : undefined,
       pages: parsedPages && !isNaN(parsedPages) ? parsedPages : undefined,
       rating,
       notes,
