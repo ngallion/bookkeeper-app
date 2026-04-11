@@ -1,15 +1,23 @@
 import { useState } from "react";
-import { Search, BookMarked, BookCheck, Plus } from "lucide-react";
+import {
+  Search,
+  BookMarked,
+  BookCheck,
+  Plus,
+  HardDriveDownload,
+} from "lucide-react";
 import { useBookStore } from "./store/bookStore";
 import { WishlistView } from "./components/WishlistView";
 import { ReadBooksView } from "./components/ReadBooksView";
 import { SearchModal } from "./components/SearchModal";
+import { ImportExportModal } from "./components/ImportExportModal";
 
 type Tab = "wishlist" | "read";
 
 export default function App() {
   const [tab, setTab] = useState<Tab>("wishlist");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [backupOpen, setBackupOpen] = useState(false);
   const { wishlist, readBooks } = useBookStore();
 
   return (
@@ -23,6 +31,13 @@ export default function App() {
               Bookkeeper
             </span>
           </div>
+          <button
+            onClick={() => setBackupOpen(true)}
+            title="Backup & Restore"
+            className="w-9 h-9 rounded-xl bg-ink-700 hover:bg-ink-600 text-paper-300/60 hover:text-paper-100 transition-all border border-paper-300/10 flex items-center justify-center"
+          >
+            <HardDriveDownload size={16} />
+          </button>
           <button
             onClick={() => setSearchOpen(true)}
             className="flex items-center gap-2 px-3 py-2 rounded-xl bg-ink-700 hover:bg-ink-600 text-paper-300/60 hover:text-paper-100 transition-all border border-paper-300/10 text-sm"
@@ -75,6 +90,10 @@ export default function App() {
       </button>
 
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+      <ImportExportModal
+        open={backupOpen}
+        onClose={() => setBackupOpen(false)}
+      />
     </div>
   );
 }

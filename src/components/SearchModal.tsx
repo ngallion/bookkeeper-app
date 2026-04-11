@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Search, X, Plus, Check, ScanBarcode } from "lucide-react";
+import { Search, X, Plus, Check, ScanBarcode, PenLine } from "lucide-react";
 import { searchBooks } from "../services/openLibrary";
 import { useBookStore } from "../store/bookStore";
 import { BookCover } from "./ui/BookCover";
+import { ManualBookModal } from "./ManualBookModal";
 import type { OLSearchResult } from "../types/book";
 
 const BarcodeScannerModal = lazy(() =>
@@ -21,6 +22,7 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [manualOpen, setManualOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { addToWishlist, isInWishlist, isRead } = useBookStore();
 
@@ -111,9 +113,16 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
             {results.length === 0 &&
               debouncedQuery.length > 1 &&
               !isFetching && (
-                <p className="text-center text-paper-300/50 py-12">
-                  No results found
-                </p>
+                <div className="flex flex-col items-center gap-3 py-10">
+                  <p className="text-paper-300/50 text-sm">No results found</p>
+                  <button
+                    onClick={() => setManualOpen(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-ink-600 hover:bg-ink-700 text-paper-300/70 hover:text-paper-100 text-sm transition-colors border border-paper-300/10"
+                  >
+                    <PenLine size={14} />
+                    Add &ldquo;{debouncedQuery}&rdquo; manually
+                  </button>
+                </div>
               )}
             {results.length === 0 && debouncedQuery.length <= 1 && (
               <p className="text-center text-paper-300/40 py-12 text-sm">
@@ -171,8 +180,24 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
               );
             })}
           </div>
+
+          {/* Footer: manual entry */}
+          <div className="border-t border-paper-300/10 px-4 py-2.5 flex justify-center">
+            <button
+              onClick={() => setManualOpen(true)}
+              className="flex items-center gap-1.5 text-xs text-paper-300/40 hover:text-paper-300/70 transition-colors"
+            >
+              <PenLine size={12} />
+              Can&rsquo;t find it? Add manually
+            </button>
+          </div>
         </div>
       </div>
+      <ManualBookModal
+        open={manualOpen}
+        onClose={() => setManualOpen(false)}
+        initialTitle={debouncedQuery}
+      />
     </>
   );
 }

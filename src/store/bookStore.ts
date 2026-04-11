@@ -26,6 +26,11 @@ interface BookStore {
 
   isInWishlist: (id: string) => boolean;
   isRead: (id: string) => boolean;
+
+  importState: (data: {
+    wishlist: WishlistBook[];
+    readBooks: ReadBook[];
+  }) => void;
 }
 
 export const useBookStore = create<BookStore>()(
@@ -102,6 +107,9 @@ export const useBookStore = create<BookStore>()(
 
       isInWishlist: (id) => get().wishlist.some((b) => b.id === id),
       isRead: (id) => get().readBooks.some((b) => b.id === id),
+
+      importState: (data) =>
+        set({ wishlist: data.wishlist, readBooks: data.readBooks }),
     }),
     { name: "bookkeeper-store" },
   ),

@@ -77,3 +77,27 @@ body {
 input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(0.6);
 }
+
+/* Shared form input style */
+.input {
+  width: 100%;
+  background: #252b4a;
+  color: #faf7f2;
+  border: 1px solid rgba(200, 192, 176, 0.1);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input::placeholder {
+  color: rgba(200, 192, 176, 0.3);
+}
+.input:focus {
+  border-color: rgba(226, 163, 58, 0.5);
+}
+/* Hide number spinners */
+.input[type="number"]::-webkit-inner-spin-button,
+.input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
