@@ -32,7 +32,12 @@ interface BookStore {
   removeFromRead: (id: string) => void;
   updateReadBook: (
     id: string,
-    updates: Partial<Pick<ReadBook, "rating" | "notes" | "dateRead">>,
+    updates: Partial<
+      Pick<
+        ReadBook,
+        "title" | "author" | "rating" | "notes" | "dateRead" | "firstPublishYear" | "pages"
+      >
+    >,
   ) => void;
 
   dismissBackupReminder: () => void;
