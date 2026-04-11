@@ -177,6 +177,7 @@ export function BarcodeScannerModal({
     return () => {
       stopScanning();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleAdd = (book: OLSearchResult) => {

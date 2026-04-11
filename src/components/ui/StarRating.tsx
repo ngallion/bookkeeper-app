@@ -1,5 +1,9 @@
-import { useRef } from "react";
-import { Star } from "lucide-react";
+import { useState, useId } from "react";
+
+const STAR_PATH =
+  "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z";
+const ACTIVE = "#fbbf24";
+const INACTIVE = "rgba(255,255,255,0.15)";
 
 interface StarRatingProps {
   value: number;
@@ -8,28 +12,19 @@ interface StarRatingProps {
   size?: number;
 }
 
-function HalfStar({ size }: { size: number }) {
+function StarSvg({ size, fill }: { size: number; fill: number }) {
+  const id = useId();
   return (
-    <div className="relative" style={{ width: size, height: size }}>
-      {/* Empty backing */}
-      <Star size={size} className="text-paper-300/30" />
-      {/* Filled left half */}
-      <div
-        className="absolute inset-0 overflow-hidden"
-        style={{ width: "50%" }}
-      >
-        <Star size={size} className="text-amber-400 fill-amber-400" />
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 24 24">
+      <defs>
+        <linearGradient id={id}>
+          <stop offset={`${fill * 100}%`} stopColor={ACTIVE} />
+          <stop offset={`${fill * 100}%`} stopColor={INACTIVE} />
+        </linearGradient>
+      </defs>
+      <path d={STAR_PATH} fill={`url(#${id})`} />
+    </svg>
   );
-}
-
-function ratingFromClientX(container: HTMLDivElement, clientX: number): number {
-  const { left, width } = container.getBoundingClientRect();
-  const x = Math.max(0, Math.min(clientX - left, width));
-  const raw = (x / width) * 5;
-  // Round to nearest 0.5
-  return Math.max(0.5, Math.round(raw * 2) / 2);
 }
 
 export function StarRating({
@@ -38,65 +33,48 @@ export function StarRating({
   readonly = false,
   size = 18,
 }: StarRatingProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
-
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>, n: number) => {
-    if (!onChange) return;
-    const { left, width } = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - left;
-    onChange(x < width / 2 ? n - 0.5 : n);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!onChange || readonly) return;
-    dragging.current = true;
-    // Prevent scroll while dragging stars
-    e.preventDefault();
-    const touch = e.touches[0];
-    onChange(ratingFromClientX(containerRef.current!, touch.clientX));
-  };
-
-  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
-    if (!onChange || readonly || !dragging.current) return;
-    e.preventDefault();
-    const touch = e.touches[0];
-    onChange(ratingFromClientX(containerRef.current!, touch.clientX));
-  };
-
-  const handleTouchEnd = () => {
-    dragging.current = false;
-  };
+  const [hovered, setHovered] = useState<number | null>(null);
+  const display = hovered ?? value;
 
   return (
     <div
-      ref={containerRef}
-      className="flex gap-0.5"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      className="flex"
+      style={{ gap: 2 }}
+      onMouseLeave={() => setHovered(null)}
     >
-      {Array.from({ length: 5 }, (_, i) => i + 1).map((n) => {
-        const full = value >= n;
-        const half = !full && value >= n - 0.5;
-
+      {[1, 2, 3, 4, 5].map((star) => {
+        const fill = display >= star ? 1 : display >= star - 0.5 ? 0.5 : 0;
         return (
-          <button
-            key={n}
-            disabled={readonly}
-            onClick={(e) => handleClick(e, n)}
-            className={`transition-transform duration-100 ${
-              readonly ? "cursor-default" : "cursor-pointer hover:scale-110"
-            }`}
+          <div
+            key={star}
+            style={{ position: "relative", width: size, height: size }}
           >
-            {full ? (
-              <Star size={size} className="text-amber-400 fill-amber-400" />
-            ) : half ? (
-              <HalfStar size={size} />
-            ) : (
-              <Star size={size} className="text-paper-300/30" />
+            <StarSvg size={size} fill={fill} />
+            {!readonly && (
+              <>
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    right: "50%",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={() => setHovered(star - 0.5)}
+                  onClick={() => onChange?.(star - 0.5)}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    left: "50%",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={() => setHovered(star)}
+                  onClick={() => onChange?.(star)}
+                />
+              </>
             )}
-          </button>
+          </div>
         );
       })}
     </div>

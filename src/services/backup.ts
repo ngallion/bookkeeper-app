@@ -57,7 +57,7 @@ function isValidReadBook(v: unknown): v is ReadBook {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function migrate(raw: Record<string, any>): Record<string, any> {
-  let data = { ...raw };
+  const data = { ...raw };
   const version = typeof data.version === "number" ? data.version : 0;
 
   // v0 → v1: tags field was absent in very early builds

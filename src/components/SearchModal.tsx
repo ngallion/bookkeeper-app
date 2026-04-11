@@ -30,8 +30,10 @@ export function SearchModal({ open, onClose }: SearchModalProps) {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 50);
     } else {
-      setQuery("");
-      setDebouncedQuery("");
+      setTimeout(() => {
+        setQuery("");
+        setDebouncedQuery("");
+      }, 0);
     }
   }, [open]);
 

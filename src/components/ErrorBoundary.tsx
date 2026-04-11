@@ -43,7 +43,9 @@ function AppErrorFallback({
   const clearAndReload = () => {
     try {
       localStorage.removeItem("bookkeeper-store");
-    } catch {}
+    } catch {
+      // localStorage not available — skip
+    }
     window.location.reload();
   };
 
