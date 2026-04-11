@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, Camera, CameraOff, RefreshCw } from "lucide-react";
+import { X, Camera, CameraOff, RefreshCw, Zap, ZapOff } from "lucide-react";
 import { BrowserMultiFormatReader } from "@zxing/browser";
 import { NotFoundException } from "@zxing/library";
 import type { IScannerControls } from "@zxing/browser";
@@ -49,11 +49,35 @@ export function BarcodeScannerModal({
   const [state, setState] = useState<ScanState>({ status: "scanning" });
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [cameraIndex, setCameraIndex] = useState(0);
+  const [torchOn, setTorchOn] = useState(false);
+  const [torchSupported, setTorchSupported] = useState(false);
   const { addToWishlist, isInWishlist, isRead } = useBookStore();
+
+  const getVideoTrack = (): MediaStreamTrack | null => {
+    const stream = videoRef.current?.srcObject;
+    if (!(stream instanceof MediaStream)) return null;
+    return stream.getVideoTracks()[0] ?? null;
+  };
 
   const stopScanning = () => {
     controlsRef.current?.stop();
     controlsRef.current = null;
+    setTorchOn(false);
+    setTorchSupported(false);
+  };
+
+  const toggleTorch = async () => {
+    const track = getVideoTrack();
+    if (!track) return;
+    const next = !torchOn;
+    try {
+      await track.applyConstraints({
+        advanced: [{ torch: next } as MediaTrackConstraintSet],
+      });
+      setTorchOn(next);
+    } catch {
+      // torch not supported on this device/browser
+    }
   };
 
   const startScanning = async (deviceId?: string) => {
@@ -76,6 +100,8 @@ export function BarcodeScannerModal({
         devices[0].deviceId;
 
       setState({ status: "scanning" });
+      setTorchOn(false);
+      setTorchSupported(false);
 
       const reader = new BrowserMultiFormatReader();
       controlsRef.current = await reader.decodeFromVideoDevice(
@@ -109,6 +135,16 @@ export function BarcodeScannerModal({
           }
         },
       );
+      // Check torch support once stream is live
+      setTimeout(() => {
+        const track = getVideoTrack();
+        if (track) {
+          const caps = track.getCapabilities() as MediaTrackCapabilities & {
+            torch?: boolean;
+          };
+          setTorchSupported(caps.torch === true);
+        }
+      }, 500);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes("Permission") || msg.includes("NotAllowed")) {
@@ -164,7 +200,7 @@ export function BarcodeScannerModal({
     (isInWishlist(state.book.key) || isRead(state.book.key));
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-ink-900">
+    <div className="fixed inset-0 z-[60] flex flex-col bg-ink-900">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-paper-300/10 bg-ink-800">
         <div className="flex items-center gap-2">
@@ -172,6 +208,19 @@ export function BarcodeScannerModal({
           <span className="font-semibold text-paper-100">Scan Barcode</span>
         </div>
         <div className="flex items-center gap-2">
+          {torchSupported && (
+            <button
+              onClick={toggleTorch}
+              title={torchOn ? "Turn off flash" : "Turn on flash"}
+              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                torchOn
+                  ? "bg-amber-400 text-ink-900"
+                  : "bg-ink-700 text-paper-300/60 hover:text-paper-100"
+              }`}
+            >
+              {torchOn ? <Zap size={15} /> : <ZapOff size={15} />}
+            </button>
+          )}
           {cameras.length > 1 && (
             <button
               onClick={switchCamera}
