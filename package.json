@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "prettier": "prettier -w .",
-    "ci": "eslint . && prettier -w ."
+    "ci": "tsc -b && eslint . && prettier -w ."
   },
   "dependencies": {
     "@smastrom/react-rating": "^1.5.0",

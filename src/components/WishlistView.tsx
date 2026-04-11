@@ -26,8 +26,14 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
   const [markReadBook, setMarkReadBook] = useState<WishlistBook | null>(null);
   const [detailBook, setDetailBook] = useState<WishlistBook | null>(null);
 
-  const openDetail = (book: WishlistBook) => { setDetailBook(book); onDetailOpenChange?.(true); };
-  const closeDetail = () => { setDetailBook(null); onDetailOpenChange?.(false); };
+  const openDetail = (book: WishlistBook) => {
+    setDetailBook(book);
+    onDetailOpenChange?.(true);
+  };
+  const closeDetail = () => {
+    setDetailBook(null);
+    onDetailOpenChange?.(false);
+  };
   const [tagInput, setTagInput] = useState<Record<string, string>>({});
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
@@ -279,10 +285,7 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
         />
       )}
       {detailBook && (
-        <BookDetailModal
-          book={detailBook}
-          onClose={closeDetail}
-        />
+        <BookDetailModal book={detailBook} onClose={closeDetail} />
       )}
     </div>
   );

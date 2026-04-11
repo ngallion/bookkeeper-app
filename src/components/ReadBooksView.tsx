@@ -20,8 +20,14 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
   const [query, setQuery] = useState("");
   const [detailBook, setDetailBook] = useState<ReadBook | null>(null);
 
-  const openDetail = (book: ReadBook) => { setDetailBook(book); onDetailOpenChange?.(true); };
-  const closeDetail = () => { setDetailBook(null); onDetailOpenChange?.(false); };
+  const openDetail = (book: ReadBook) => {
+    setDetailBook(book);
+    onDetailOpenChange?.(true);
+  };
+  const closeDetail = () => {
+    setDetailBook(null);
+    onDetailOpenChange?.(false);
+  };
   const listRef = useRef<HTMLDivElement>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
   useLayoutEffect(() => {
@@ -225,10 +231,7 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
       )}
 
       {detailBook && (
-        <ReadBookDetailModal
-          book={detailBook}
-          onClose={closeDetail}
-        />
+        <ReadBookDetailModal book={detailBook} onClose={closeDetail} />
       )}
     </div>
   );

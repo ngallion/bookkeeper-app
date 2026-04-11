@@ -19,13 +19,23 @@ interface SearchModalProps {
   onScannerOpenChange?: (open: boolean) => void;
 }
 
-export function SearchModal({ open, onClose, onScannerOpenChange }: SearchModalProps) {
+export function SearchModal({
+  open,
+  onClose,
+  onScannerOpenChange,
+}: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
 
-  const openScanner = () => { setScannerOpen(true); onScannerOpenChange?.(true); };
-  const closeScanner = () => { setScannerOpen(false); onScannerOpenChange?.(false); };
+  const openScanner = () => {
+    setScannerOpen(true);
+    onScannerOpenChange?.(true);
+  };
+  const closeScanner = () => {
+    setScannerOpen(false);
+    onScannerOpenChange?.(false);
+  };
   const [manualOpen, setManualOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const { addToWishlist, isInWishlist, isRead } = useBookStore();
@@ -71,10 +81,7 @@ export function SearchModal({ open, onClose, onScannerOpenChange }: SearchModalP
   return (
     <>
       <Suspense fallback={null}>
-        <BarcodeScannerModal
-          open={scannerOpen}
-          onClose={closeScanner}
-        />
+        <BarcodeScannerModal open={scannerOpen} onClose={closeScanner} />
       </Suspense>
       <div
         className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] px-4"

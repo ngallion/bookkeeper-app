@@ -71,9 +71,11 @@ export default function App() {
 
       {/* Content */}
       <main className="flex-1 max-w-2xl mx-auto w-full px-4 py-6">
-        {tab === "wishlist"
-          ? <WishlistView onDetailOpenChange={setDetailOpen} />
-          : <ReadBooksView onDetailOpenChange={setDetailOpen} />}
+        {tab === "wishlist" ? (
+          <WishlistView onDetailOpenChange={setDetailOpen} />
+        ) : (
+          <ReadBooksView onDetailOpenChange={setDetailOpen} />
+        )}
       </main>
 
       {/* FAB — mobile only */}
@@ -84,14 +86,21 @@ export default function App() {
         <Plus size={24} />
       </button>
 
-      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} onScannerOpenChange={setScannerOpen} />
+      <SearchModal
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onScannerOpenChange={setScannerOpen}
+      />
       <UpdateBanner />
       <BackupReminderBanner onExport={() => setBackupOpen(true)} />
       <ImportExportModal
         open={backupOpen}
         onClose={() => setBackupOpen(false)}
       />
-      <PossumCompanion isSearching={searchOpen || scannerOpen || detailOpen} activeTab={tab} />
+      <PossumCompanion
+        isSearching={searchOpen || scannerOpen || detailOpen}
+        activeTab={tab}
+      />
     </div>
   );
 }
