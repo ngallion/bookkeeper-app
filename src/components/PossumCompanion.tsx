@@ -273,6 +273,7 @@ export function PossumCompanion({
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
+          onContextMenu={(e) => e.preventDefault()}
         >
           <img
             src={image}
