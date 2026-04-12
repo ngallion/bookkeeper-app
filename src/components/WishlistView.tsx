@@ -182,6 +182,8 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                     >
                       <BookCover
                         coverId={book.coverId}
+                        bookId={book.id}
+                        hasCustomCover={book.hasCustomCover}
                         title={book.title}
                         size="md"
                       />

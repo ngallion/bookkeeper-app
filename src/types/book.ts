@@ -13,6 +13,8 @@ export interface WishlistBook {
   title: string;
   author: string;
   coverId?: number;
+  /** True when a custom cover blob is stored for this book in IndexedDB */
+  hasCustomCover?: boolean;
   score: number; // 1–10 priority
   tags: string[];
   addedAt: string;
@@ -26,6 +28,8 @@ export interface ReadBook {
   title: string;
   author: string;
   coverId?: number;
+  /** True when a custom cover blob is stored for this book in IndexedDB */
+  hasCustomCover?: boolean;
   rating: number; // 1–5
   notes: string;
   dateRead: string;

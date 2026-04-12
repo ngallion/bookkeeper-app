@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { X, BookCheck, Trash2 } from "lucide-react";
+import { X, BookCheck, Trash2, Upload, XCircle } from "lucide-react";
 import { useBookStore } from "../store/bookStore";
 import { fetchWorkDescription } from "../services/openLibrary";
 import { BookCover } from "./ui/BookCover";
 import { ScoreSelector } from "./ui/ScoreSelector";
 import { MarkReadModal } from "./MarkReadModal";
+import { saveCover, deleteCover } from "../services/db";
+import { downscaleImage } from "../services/imageUtils";
 import type { WishlistBook } from "../types/book";
 
 interface BookDetailModalProps {
@@ -19,6 +21,7 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
     updateWishlistScore,
     updateWishlistTags,
     removeFromWishlist,
+    setWishlistCustomCover,
   } = useBookStore();
 
   const [title, setTitle] = useState(book.title);
@@ -28,6 +31,14 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
   const [notes, setNotes] = useState(book.notes ?? "");
   const [tagInput, setTagInput] = useState("");
   const [markReadOpen, setMarkReadOpen] = useState(false);
+
+  // Cover upload state
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [coverUploading, setCoverUploading] = useState(false);
+  // Local flag mirrors book.hasCustomCover so the cover refreshes immediately
+  const [hasCustomCover, setHasCustomCover] = useState(
+    book.hasCustomCover ?? false,
+  );
 
   const isOLBook = book.id.startsWith("/works/");
 
@@ -75,7 +86,33 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
 
   const handleDelete = () => {
     removeFromWishlist(book.id);
+    if (hasCustomCover) deleteCover(book.id);
     onClose();
+  };
+
+  const handleCoverUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Reset input so the same file can be re-selected after removal
+    e.target.value = "";
+
+    setCoverUploading(true);
+    try {
+      const blob = await downscaleImage(file);
+      await saveCover(book.id, blob);
+      setWishlistCustomCover(book.id, true);
+      setHasCustomCover(true);
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
+  const handleCoverRemove = async () => {
+    await deleteCover(book.id);
+    setWishlistCustomCover(book.id, false);
+    setHasCustomCover(false);
   };
 
   return (
@@ -111,7 +148,50 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
           <div className="overflow-y-auto flex-1 px-5 py-5 flex flex-col gap-5">
             {/* Cover + core fields */}
             <div className="flex gap-4">
-              <BookCover coverId={book.coverId} title={book.title} size="lg" />
+              {/* Cover with upload overlay */}
+              <div className="relative shrink-0 group">
+                <BookCover
+                  coverId={book.coverId}
+                  bookId={book.id}
+                  hasCustomCover={hasCustomCover}
+                  title={book.title}
+                  size="lg"
+                />
+                {/* Upload / remove buttons */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity rounded bg-ink-900/60">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCoverUpload}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={coverUploading}
+                    title="Upload cover photo"
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-amber-400/90 hover:bg-amber-300 text-ink-900 text-xs font-semibold transition-colors disabled:opacity-50"
+                  >
+                    {coverUploading ? (
+                      <div className="w-3 h-3 border-2 border-ink-900/30 border-t-ink-900 rounded-full animate-spin" />
+                    ) : (
+                      <Upload size={11} />
+                    )}
+                    {coverUploading ? "Saving…" : "Upload"}
+                  </button>
+                  {hasCustomCover && (
+                    <button
+                      onClick={handleCoverRemove}
+                      title="Remove custom cover"
+                      className="flex items-center gap-1 px-2 py-1 rounded bg-red-500/80 hover:bg-red-500 text-white text-xs font-semibold transition-colors"
+                    >
+                      <XCircle size={11} />
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+
               <div className="flex-1 flex flex-col gap-2.5 min-w-0">
                 <Field label="Title">
                   <input
