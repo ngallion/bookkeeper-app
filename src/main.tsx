@@ -4,6 +4,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 import App from "./App.tsx";
 import { ErrorBoundary } from "./components/ErrorBoundary.tsx";
+import { migrateFromLocalStorage } from "./services/db.ts";
+
+// Fire-and-forget: migrate any existing localStorage data to IndexedDB
+migrateFromLocalStorage();
 
 const queryClient = new QueryClient({
   defaultOptions: {

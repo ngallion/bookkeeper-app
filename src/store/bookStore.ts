@@ -1,6 +1,7 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { createJSONStorage, persist } from "zustand/middleware";
 import type { WishlistBook, ReadBook } from "../types/book";
+import { idbStorage } from "../services/db";
 
 interface BookStore {
   wishlist: WishlistBook[];
@@ -21,6 +22,7 @@ interface BookStore {
       >
     >,
   ) => void;
+  setWishlistCustomCover: (id: string, has: boolean) => void;
 
   markAsRead: (book: Omit<ReadBook, "addedAt">) => void;
   moveToRead: (
@@ -45,6 +47,7 @@ interface BookStore {
       >
     >,
   ) => void;
+  setReadCustomCover: (id: string, has: boolean) => void;
 
   dismissBackupReminder: () => void;
 
@@ -96,6 +99,13 @@ export const useBookStore = create<BookStore>()(
           ),
         })),
 
+      setWishlistCustomCover: (id, has) =>
+        set((s) => ({
+          wishlist: s.wishlist.map((b) =>
+            b.id === id ? { ...b, hasCustomCover: has || undefined } : b,
+          ),
+        })),
+
       markAsRead: (book) => {
         if (get().isRead(book.id)) return;
         set((s) => ({
@@ -119,6 +129,7 @@ export const useBookStore = create<BookStore>()(
               title: book.title,
               author: book.author,
               coverId: book.coverId,
+              hasCustomCover: book.hasCustomCover,
               firstPublishYear: book.firstPublishYear,
               pages: book.pages,
               rating,
@@ -141,6 +152,13 @@ export const useBookStore = create<BookStore>()(
           ),
         })),
 
+      setReadCustomCover: (id, has) =>
+        set((s) => ({
+          readBooks: s.readBooks.map((b) =>
+            b.id === id ? { ...b, hasCustomCover: has || undefined } : b,
+          ),
+        })),
+
       dismissBackupReminder: () =>
         set((s) => ({ lastBackupPromptAt: s.totalBooksAdded })),
 
@@ -150,6 +168,6 @@ export const useBookStore = create<BookStore>()(
       importState: (data) =>
         set({ wishlist: data.wishlist, readBooks: data.readBooks }),
     }),
-    { name: "bookkeeper-store" },
+    { name: "bookkeeper-store", storage: createJSONStorage(() => idbStorage) },
   ),
 );

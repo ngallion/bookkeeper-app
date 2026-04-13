@@ -48,7 +48,13 @@ export function MarkReadModal({ book, onClose }: MarkReadModalProps) {
         <div className="px-5 py-4 flex flex-col gap-5">
           {/* Book info */}
           <div className="flex gap-3 items-center">
-            <BookCover coverId={book.coverId} title={book.title} size="sm" />
+            <BookCover
+              coverId={book.coverId}
+              bookId={book.id}
+              hasCustomCover={book.hasCustomCover}
+              title={book.title}
+              size="sm"
+            />
             <div>
               <p className="text-paper-100 font-medium leading-tight">
                 {book.title}

@@ -163,6 +163,8 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
                     >
                       <BookCover
                         coverId={book.coverId}
+                        bookId={book.id}
+                        hasCustomCover={book.hasCustomCover}
                         title={book.title}
                         size="md"
                       />
