@@ -8,6 +8,11 @@ export interface OLSearchResult {
   subject?: string[];
 }
 
+export interface ReadingProgress {
+  type: "page" | "percent";
+  value: number;
+}
+
 export interface WishlistBook {
   id: string;
   title: string;
@@ -21,6 +26,10 @@ export interface WishlistBook {
   firstPublishYear?: number;
   pages?: number;
   notes?: string;
+  /** Set to "reading" when the user has marked this book as currently in progress */
+  readingStatus?: "reading";
+  /** Current reading progress, only meaningful when readingStatus is "reading" */
+  readingProgress?: ReadingProgress;
 }
 
 export interface ReadBook {

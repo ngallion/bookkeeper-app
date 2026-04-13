@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-import type { WishlistBook, ReadBook } from "../types/book";
+import type { WishlistBook, ReadBook, ReadingProgress } from "../types/book";
 import { idbStorage } from "../services/db";
 
 interface BookStore {
@@ -23,6 +23,11 @@ interface BookStore {
     >,
   ) => void;
   setWishlistCustomCover: (id: string, has: boolean) => void;
+  setReadingProgress: (
+    id: string,
+    reading: boolean,
+    progress?: ReadingProgress,
+  ) => void;
 
   markAsRead: (book: Omit<ReadBook, "addedAt">) => void;
   moveToRead: (
@@ -103,6 +108,19 @@ export const useBookStore = create<BookStore>()(
         set((s) => ({
           wishlist: s.wishlist.map((b) =>
             b.id === id ? { ...b, hasCustomCover: has || undefined } : b,
+          ),
+        })),
+
+      setReadingProgress: (id, reading, progress) =>
+        set((s) => ({
+          wishlist: s.wishlist.map((b) =>
+            b.id === id
+              ? {
+                  ...b,
+                  readingStatus: reading ? ("reading" as const) : undefined,
+                  readingProgress: reading ? progress : undefined,
+                }
+              : b,
           ),
         })),
 
