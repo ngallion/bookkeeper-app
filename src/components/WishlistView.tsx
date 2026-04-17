@@ -1,12 +1,20 @@
 import { useState, useRef, useLayoutEffect } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
-import { Trash2, BookCheck, Tag, X, Search, Plus } from "lucide-react";
+import { Trash2, BookCheck, Tag, X, Search, Plus, BookOpen } from "lucide-react";
 import { useBookStore } from "../store/bookStore";
 import { BookCover } from "./ui/BookCover";
 import { ScoreSelector } from "./ui/ScoreSelector";
 import { MarkReadModal } from "./MarkReadModal";
 import { BookDetailModal } from "./BookDetailModal";
 import type { WishlistBook } from "../types/book";
+
+function getProgressPercent(book: WishlistBook): number | null {
+  if (!book.readingProgress) return null;
+  if (book.readingProgress.type === "percent") return book.readingProgress.value;
+  if (book.pages && book.pages > 0)
+    return Math.min(Math.round((book.readingProgress.value / book.pages) * 100), 100);
+  return null;
+}
 
 type SortKey = "score" | "title" | "addedAt";
 
@@ -20,6 +28,7 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
     removeFromWishlist,
     updateWishlistScore,
     updateWishlistTags,
+    setReadingProgress,
   } = useBookStore();
   const [sort, setSort] = useState<SortKey>("score");
   const [query, setQuery] = useState("");
@@ -52,6 +61,11 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
     : wishlist;
 
   const sorted = [...filtered].sort((a, b) => {
+    // In-progress books always float to the top
+    const aReading = a.readingStatus === "reading" ? 0 : 1;
+    const bReading = b.readingStatus === "reading" ? 0 : 1;
+    if (aReading !== bReading) return aReading - bReading;
+
     if (sort === "score") return b.score - a.score;
     if (sort === "title") return a.title.localeCompare(b.title);
     return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
@@ -174,7 +188,13 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                   paddingBottom: "12px",
                 }}
               >
-                <div className="bg-ink-700 rounded-xl p-4 border border-paper-300/5 hover:border-paper-300/10 transition-colors">
+                <div
+                  className={`bg-ink-700 rounded-xl p-4 border transition-colors ${
+                    book.readingStatus === "reading"
+                      ? "border-green-500/30 hover:border-green-500/40"
+                      : "border-paper-300/5 hover:border-paper-300/10"
+                  }`}
+                >
                   <div className="flex gap-4">
                     <button
                       onClick={() => openDetail(book)}
@@ -207,6 +227,26 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                         </button>
                         <div className="flex gap-1 shrink-0">
                           <button
+                            onClick={() =>
+                              setReadingProgress(
+                                book.id,
+                                book.readingStatus !== "reading",
+                              )
+                            }
+                            title={
+                              book.readingStatus === "reading"
+                                ? "Stop reading"
+                                : "Mark as currently reading"
+                            }
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                              book.readingStatus === "reading"
+                                ? "bg-green-500/15 text-green-400 hover:bg-red-500/20 hover:text-red-400"
+                                : "bg-ink-600 text-paper-300/50 hover:bg-green-500/15 hover:text-green-400"
+                            }`}
+                          >
+                            <BookOpen size={15} />
+                          </button>
+                          <button
                             onClick={() => setMarkReadBook(book)}
                             title="Mark as read"
                             className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-amber-400/20 text-paper-300/50 hover:text-amber-400 flex items-center justify-center transition-colors"
@@ -222,6 +262,43 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                           </button>
                         </div>
                       </div>
+
+                      {/* Reading progress */}
+                      {book.readingStatus === "reading" && (() => {
+                        const pct = getProgressPercent(book);
+                        return (
+                          <div className="mt-2">
+                            {book.readingProgress ? (
+                              <div>
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs text-green-400/80 flex items-center gap-1">
+                                    <BookOpen size={10} />
+                                    {book.readingProgress.type === "page"
+                                      ? `Page ${book.readingProgress.value}${book.pages ? ` of ${book.pages}` : ""}`
+                                      : `${book.readingProgress.value}% complete`}
+                                  </span>
+                                  {pct !== null && book.readingProgress.type === "page" && (
+                                    <span className="text-xs text-paper-300/40">{pct}%</span>
+                                  )}
+                                </div>
+                                {pct !== null && (
+                                  <div className="w-full h-1 bg-ink-600 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-green-400 rounded-full transition-all"
+                                      style={{ width: `${pct}%` }}
+                                    />
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-xs text-green-400/70 flex items-center gap-1">
+                                <BookOpen size={10} />
+                                Currently reading
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* Score */}
                       <div className="mt-3">

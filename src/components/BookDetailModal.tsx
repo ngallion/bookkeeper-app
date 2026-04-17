@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { X, BookCheck, Trash2, Upload, XCircle } from "lucide-react";
+import { X, BookCheck, Trash2, Upload, XCircle, BookOpen } from "lucide-react";
 import { useBookStore } from "../store/bookStore";
 import { fetchWorkDescription } from "../services/openLibrary";
 import { BookCover } from "./ui/BookCover";
@@ -22,6 +22,7 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
     updateWishlistTags,
     removeFromWishlist,
     setWishlistCustomCover,
+    setReadingProgress,
   } = useBookStore();
 
   const [title, setTitle] = useState(book.title);
@@ -31,6 +32,15 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
   const [notes, setNotes] = useState(book.notes ?? "");
   const [tagInput, setTagInput] = useState("");
   const [markReadOpen, setMarkReadOpen] = useState(false);
+
+  // Reading progress local state (synced to store immediately, not via Save)
+  const [isReading, setIsReading] = useState(book.readingStatus === "reading");
+  const [progressType, setProgressType] = useState<"page" | "percent">(
+    book.readingProgress?.type ?? "page",
+  );
+  const [progressValue, setProgressValue] = useState(
+    book.readingProgress?.value?.toString() ?? "",
+  );
 
   // Cover upload state
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -280,6 +290,121 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
                 onChange={(score) => updateWishlistScore(book.id, score)}
                 label="Priority"
               />
+            </div>
+
+            {/* Reading progress */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-xs text-amber-300/70 uppercase tracking-wider">
+                  Reading progress
+                </p>
+                <button
+                  onClick={() => {
+                    const next = !isReading;
+                    setIsReading(next);
+                    if (!next) {
+                      setProgressValue("");
+                      setReadingProgress(book.id, false);
+                    } else {
+                      setReadingProgress(book.id, true);
+                    }
+                  }}
+                  className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full font-medium transition-colors ${
+                    isReading
+                      ? "bg-green-500/20 text-green-400 hover:bg-red-500/20 hover:text-red-400"
+                      : "bg-ink-600 text-paper-300/60 hover:text-paper-100"
+                  }`}
+                >
+                  <BookOpen size={11} />
+                  {isReading ? "Currently reading" : "Start reading"}
+                </button>
+              </div>
+
+              {isReading && (() => {
+                const parsedVal = parseInt(progressValue, 10);
+                const validVal = !isNaN(parsedVal) && parsedVal >= 0;
+                const currentPages = pages ? parseInt(pages, 10) : book.pages;
+                const pct = validVal
+                  ? progressType === "percent"
+                    ? Math.min(parsedVal, 100)
+                    : currentPages && currentPages > 0
+                      ? Math.min(Math.round((parsedVal / currentPages) * 100), 100)
+                      : null
+                  : null;
+
+                const commitProgress = () => {
+                  if (validVal) {
+                    setReadingProgress(book.id, true, {
+                      type: progressType,
+                      value: parsedVal,
+                    });
+                  }
+                };
+
+                return (
+                  <div className="flex flex-col gap-2.5">
+                    {/* Page vs percent toggle */}
+                    <div className="flex gap-1">
+                      {(["page", "percent"] as const).map((t) => (
+                        <button
+                          key={t}
+                          onClick={() => {
+                            setProgressType(t);
+                            setProgressValue("");
+                            setReadingProgress(book.id, true, undefined);
+                          }}
+                          className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            progressType === t
+                              ? "bg-amber-400/20 text-amber-400"
+                              : "bg-ink-600 text-paper-300/50 hover:text-paper-100"
+                          }`}
+                        >
+                          {t === "page" ? "Page number" : "Percentage"}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Value input */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        max={progressType === "percent" ? 100 : undefined}
+                        value={progressValue}
+                        onChange={(e) => setProgressValue(e.target.value)}
+                        onBlur={commitProgress}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") commitProgress();
+                        }}
+                        placeholder={progressType === "page" ? "e.g. 120" : "0–100"}
+                        className="input flex-1"
+                      />
+                      <span className="text-paper-300/50 text-sm shrink-0">
+                        {progressType === "percent"
+                          ? "%"
+                          : currentPages
+                            ? `/ ${currentPages} pages`
+                            : "pages"}
+                      </span>
+                    </div>
+
+                    {/* Progress bar */}
+                    {pct !== null && (
+                      <div>
+                        <div className="w-full h-1.5 bg-ink-600 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-green-400 rounded-full transition-all"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-paper-300/40 mt-1 text-right">
+                          {pct}% complete
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Tags */}
