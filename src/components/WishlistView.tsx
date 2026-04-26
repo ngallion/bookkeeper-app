@@ -76,6 +76,7 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
     estimateSize: () => 172,
     overscan: 5,
     scrollMargin,
+    getItemKey: (index) => sorted[index].id,
   });
 
   const handleTagAdd = (id: string, value: string) => {
@@ -176,7 +177,7 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
             const book = sorted[virtualItem.index];
             return (
               <div
-                key={book.id}
+                key={virtualItem.key}
                 data-index={virtualItem.index}
                 ref={virtualizer.measureElement}
                 style={{
