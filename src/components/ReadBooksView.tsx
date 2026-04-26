@@ -55,6 +55,7 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
     estimateSize: () => 172,
     overscan: 5,
     scrollMargin,
+    getItemKey: (index) => sorted[index].id,
   });
 
   if (readBooks.length === 0) {
@@ -143,7 +144,7 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
             const book = sorted[virtualItem.index];
             return (
               <div
-                key={book.id}
+                key={virtualItem.key}
                 data-index={virtualItem.index}
                 ref={virtualizer.measureElement}
                 style={{
