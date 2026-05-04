@@ -172,7 +172,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                       Buy me a coffee
                     </p>
                     <p className="text-paper-300/50 text-xs mt-0.5">
-                      If you're enjoying Bookkeeper, a donation helps keep it
+                      If you're enjoying Bookkeeper, a tip helps keep it
                       going.
                     </p>
                   </div>
@@ -182,7 +182,7 @@ export function SettingsModal({ open, onClose }: SettingsModalProps) {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-xs text-amber-400 hover:text-amber-300 transition-colors shrink-0 mt-0.5"
                   >
-                    Donate
+                    Leave a tip
                     <ExternalLink size={12} />
                   </a>
                 </div>
