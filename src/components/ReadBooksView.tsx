@@ -6,6 +6,7 @@ import { BookCover } from "./ui/BookCover";
 import { StarRating } from "./ui/StarRating";
 import { StatsPanel } from "./StatsPanel";
 import { ReadBookDetailModal } from "./ReadBookDetailModal";
+import { SortSelect, type SortDirection } from "./ui/SortSelect";
 import type { ReadBook } from "../types/book";
 
 type SortKey = "dateRead" | "rating" | "title" | "pages";
@@ -17,7 +18,13 @@ interface ReadBooksViewProps {
 export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
   const { readBooks, removeFromRead } = useBookStore();
   const [sort, setSort] = useState<SortKey>("dateRead");
+  const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [query, setQuery] = useState("");
+
+  const changeSort = (key: SortKey) => {
+    setSort(key);
+    setSortDir(key === "title" ? "asc" : "desc");
+  };
   const [detailBook, setDetailBook] = useState<ReadBook | null>(null);
 
   const openDetail = (book: ReadBook) => {
@@ -44,11 +51,14 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
       )
     : readBooks;
 
+  const dirMult = sortDir === "asc" ? 1 : -1;
   const sorted = [...filtered].sort((a, b) => {
-    if (sort === "rating") return b.rating - a.rating;
-    if (sort === "title") return a.title.localeCompare(b.title);
-    if (sort === "pages") return (b.pages ?? 0) - (a.pages ?? 0);
-    return new Date(b.dateRead).getTime() - new Date(a.dateRead).getTime();
+    let cmp: number;
+    if (sort === "rating") cmp = a.rating - b.rating;
+    else if (sort === "title") cmp = a.title.localeCompare(b.title);
+    else if (sort === "pages") cmp = (a.pages ?? 0) - (b.pages ?? 0);
+    else cmp = new Date(a.dateRead).getTime() - new Date(b.dateRead).getTime();
+    return cmp * dirMult;
   });
 
   const virtualizer = useWindowVirtualizer({
@@ -110,28 +120,18 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
       </div>
 
       {/* Sort bar */}
-      <div className="flex items-center gap-2">
-        <span className="text-paper-300/50 text-sm">Sort by:</span>
-        {(["dateRead", "rating", "title", "pages"] as SortKey[]).map((key) => (
-          <button
-            key={key}
-            onClick={() => setSort(key)}
-            className={`text-sm px-3 py-1 rounded-full transition-colors ${
-              sort === key
-                ? "bg-amber-400 text-ink-900 font-semibold"
-                : "text-paper-300/60 hover:text-paper-100"
-            }`}
-          >
-            {key === "dateRead"
-              ? "Date read"
-              : key === "rating"
-                ? "Rating"
-                : key === "pages"
-                  ? "Pages"
-                  : "Title"}
-          </button>
-        ))}
-      </div>
+      <SortSelect
+        value={sort}
+        onChange={changeSort}
+        direction={sortDir}
+        onDirectionChange={setSortDir}
+        options={[
+          { value: "dateRead", label: "Date read" },
+          { value: "rating", label: "Rating" },
+          { value: "title", label: "Title" },
+          { value: "pages", label: "Pages" },
+        ]}
+      />
 
       {/* Book list */}
       {sorted.length === 0 ? (

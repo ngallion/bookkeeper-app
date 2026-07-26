@@ -7,6 +7,7 @@ import { ScoreSelector } from "./ui/ScoreSelector";
 import { MarkReadModal } from "./MarkReadModal";
 import { BookDetailModal } from "./BookDetailModal";
 import { ConfirmDialog } from "./ui/ConfirmDialog";
+import { SortSelect, type SortDirection } from "./ui/SortSelect";
 import type { WishlistBook } from "../types/book";
 
 function getProgressPercent(book: WishlistBook): number | null {
@@ -17,7 +18,7 @@ function getProgressPercent(book: WishlistBook): number | null {
   return null;
 }
 
-type SortKey = "score" | "title" | "addedAt";
+type SortKey = "score" | "title" | "addedAt" | "pages";
 
 interface WishlistViewProps {
   onDetailOpenChange?: (open: boolean) => void;
@@ -32,7 +33,13 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
     setReadingProgress,
   } = useBookStore();
   const [sort, setSort] = useState<SortKey>("score");
+  const [sortDir, setSortDir] = useState<SortDirection>("desc");
   const [query, setQuery] = useState("");
+
+  const changeSort = (key: SortKey) => {
+    setSort(key);
+    setSortDir(key === "title" ? "asc" : "desc");
+  };
   const [markReadBook, setMarkReadBook] = useState<WishlistBook | null>(null);
   const [detailBook, setDetailBook] = useState<WishlistBook | null>(null);
   const [deleteBook, setDeleteBook] = useState<WishlistBook | null>(null);
@@ -62,15 +69,19 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
       )
     : wishlist;
 
+  const dirMult = sortDir === "asc" ? 1 : -1;
   const sorted = [...filtered].sort((a, b) => {
     // In-progress books always float to the top
     const aReading = a.readingStatus === "reading" ? 0 : 1;
     const bReading = b.readingStatus === "reading" ? 0 : 1;
     if (aReading !== bReading) return aReading - bReading;
 
-    if (sort === "score") return b.score - a.score;
-    if (sort === "title") return a.title.localeCompare(b.title);
-    return new Date(b.addedAt).getTime() - new Date(a.addedAt).getTime();
+    let cmp: number;
+    if (sort === "score") cmp = a.score - b.score;
+    else if (sort === "title") cmp = a.title.localeCompare(b.title);
+    else if (sort === "pages") cmp = (a.pages ?? 0) - (b.pages ?? 0);
+    else cmp = new Date(a.addedAt).getTime() - new Date(b.addedAt).getTime();
+    return cmp * dirMult;
   });
 
   const virtualizer = useWindowVirtualizer({
@@ -144,26 +155,18 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
       </div>
 
       {/* Sort bar */}
-      <div className="flex items-center gap-2">
-        <span className="text-paper-300/50 text-sm">Sort by:</span>
-        {(["score", "title", "addedAt"] as SortKey[]).map((key) => (
-          <button
-            key={key}
-            onClick={() => setSort(key)}
-            className={`text-sm px-3 py-1 rounded-full transition-colors ${
-              sort === key
-                ? "bg-amber-400 text-ink-900 font-semibold"
-                : "text-paper-300/60 hover:text-paper-100"
-            }`}
-          >
-            {key === "score"
-              ? "Priority"
-              : key === "addedAt"
-                ? "Recently added"
-                : "Title"}
-          </button>
-        ))}
-      </div>
+      <SortSelect
+        value={sort}
+        onChange={changeSort}
+        direction={sortDir}
+        onDirectionChange={setSortDir}
+        options={[
+          { value: "score", label: "Priority" },
+          { value: "title", label: "Title" },
+          { value: "addedAt", label: "Recently added" },
+          { value: "pages", label: "Pages" },
+        ]}
+      />
 
       {/* Book list */}
       {sorted.length === 0 ? (
