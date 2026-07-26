@@ -1,19 +1,24 @@
-import { HardDriveDownload, X } from "lucide-react";
+import { Save, X } from "lucide-react";
 import { useBookStore } from "../store/bookStore";
 
 const BACKUP_INTERVAL = 20;
+const BACKUP_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000; // 1 month
 
 interface BackupReminderBannerProps {
   onExport: () => void;
 }
 
 export function BackupReminderBanner({ onExport }: BackupReminderBannerProps) {
-  const { totalBooksAdded, lastBackupPromptAt, dismissBackupReminder } =
-    useBookStore();
+  const {
+    totalBooksAdded,
+    lastBackupPromptAt,
+    lastBackupPromptTime,
+    dismissBackupReminder,
+  } = useBookStore();
 
-  const shouldShow =
-    totalBooksAdded > 0 &&
-    totalBooksAdded - lastBackupPromptAt >= BACKUP_INTERVAL;
+  const countDue = totalBooksAdded - lastBackupPromptAt >= BACKUP_INTERVAL;
+  const timeDue = Date.now() - lastBackupPromptTime >= BACKUP_MAX_AGE_MS;
+  const shouldShow = totalBooksAdded > 0 && (countDue || timeDue);
 
   if (!shouldShow) return null;
 
@@ -24,9 +29,11 @@ export function BackupReminderBanner({ onExport }: BackupReminderBannerProps) {
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-ink-700 border border-amber-400/30 text-paper-100 text-sm px-4 py-3 rounded-xl shadow-xl w-[calc(100%-2rem)] max-w-sm">
-      <HardDriveDownload size={15} className="text-amber-400 shrink-0" />
+      <Save size={15} className="text-amber-400 shrink-0" />
       <span className="flex-1">
-        {totalBooksAdded} books added — back up your data?
+        {countDue
+          ? `${totalBooksAdded} books added — back up your data?`
+          : "It's been a while — back up your library?"}
       </span>
       <button
         onClick={handleExport}

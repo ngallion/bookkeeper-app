@@ -15,7 +15,8 @@ type ImportStatus =
   | { type: "error"; message: string };
 
 export function ImportExportModal({ open, onClose }: ImportExportModalProps) {
-  const { wishlist, readBooks, importState } = useBookStore();
+  const { wishlist, readBooks, importState, dismissBackupReminder } =
+    useBookStore();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importStatus, setImportStatus] = useState<ImportStatus>({
     type: "idle",
@@ -45,6 +46,7 @@ export function ImportExportModal({ open, onClose }: ImportExportModalProps) {
     const file = new File([blob], filename, { type: "application/json" });
     if (navigator.canShare?.({ files: [file] })) {
       await navigator.share({ files: [file], title: "Bookkeeper backup" });
+      dismissBackupReminder();
       return;
     }
 
@@ -54,6 +56,7 @@ export function ImportExportModal({ open, onClose }: ImportExportModalProps) {
     a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+    dismissBackupReminder();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

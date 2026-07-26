@@ -3,7 +3,7 @@ import {
   BookMarked,
   BookCheck,
   Plus,
-  HardDriveDownload,
+  Save,
   Settings,
 } from "lucide-react";
 import { useBookStore } from "./store/bookStore";
@@ -50,7 +50,7 @@ export default function App() {
             title="Backup & Restore"
             className="w-9 h-9 rounded-xl bg-ink-700 hover:bg-ink-600 text-paper-300/60 hover:text-paper-100 transition-all border border-paper-300/10 flex items-center justify-center"
           >
-            <HardDriveDownload size={16} />
+            <Save size={16} />
           </button>
           <button
             onClick={() => setSearchOpen(true)}

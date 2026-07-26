@@ -8,6 +8,8 @@ interface BookStore {
   readBooks: ReadBook[];
   totalBooksAdded: number;
   lastBackupPromptAt: number;
+  /** Epoch ms of the last backup export or reminder dismissal */
+  lastBackupPromptTime: number;
 
   addToWishlist: (book: Omit<WishlistBook, "addedAt">) => void;
   removeFromWishlist: (id: string) => void;
@@ -72,6 +74,7 @@ export const useBookStore = create<BookStore>()(
       readBooks: [],
       totalBooksAdded: 0,
       lastBackupPromptAt: 0,
+      lastBackupPromptTime: Date.now(),
 
       addToWishlist: (book) => {
         if (get().isInWishlist(book.id) || get().isRead(book.id)) return;
@@ -178,7 +181,10 @@ export const useBookStore = create<BookStore>()(
         })),
 
       dismissBackupReminder: () =>
-        set((s) => ({ lastBackupPromptAt: s.totalBooksAdded })),
+        set((s) => ({
+          lastBackupPromptAt: s.totalBooksAdded,
+          lastBackupPromptTime: Date.now(),
+        })),
 
       isInWishlist: (id) => get().wishlist.some((b) => b.id === id),
       isRead: (id) => get().readBooks.some((b) => b.id === id),
