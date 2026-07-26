@@ -8,7 +8,7 @@ import { StatsPanel } from "./StatsPanel";
 import { ReadBookDetailModal } from "./ReadBookDetailModal";
 import type { ReadBook } from "../types/book";
 
-type SortKey = "dateRead" | "rating" | "title";
+type SortKey = "dateRead" | "rating" | "title" | "pages";
 
 interface ReadBooksViewProps {
   onDetailOpenChange?: (open: boolean) => void;
@@ -47,6 +47,7 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
   const sorted = [...filtered].sort((a, b) => {
     if (sort === "rating") return b.rating - a.rating;
     if (sort === "title") return a.title.localeCompare(b.title);
+    if (sort === "pages") return (b.pages ?? 0) - (a.pages ?? 0);
     return new Date(b.dateRead).getTime() - new Date(a.dateRead).getTime();
   });
 
@@ -111,7 +112,7 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
       {/* Sort bar */}
       <div className="flex items-center gap-2">
         <span className="text-paper-300/50 text-sm">Sort by:</span>
-        {(["dateRead", "rating", "title"] as SortKey[]).map((key) => (
+        {(["dateRead", "rating", "title", "pages"] as SortKey[]).map((key) => (
           <button
             key={key}
             onClick={() => setSort(key)}
@@ -125,7 +126,9 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
               ? "Date read"
               : key === "rating"
                 ? "Rating"
-                : "Title"}
+                : key === "pages"
+                  ? "Pages"
+                  : "Title"}
           </button>
         ))}
       </div>
