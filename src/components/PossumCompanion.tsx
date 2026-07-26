@@ -168,6 +168,34 @@ export function PossumCompanion({
     };
   }, [startSleepTimers, clearSleepTimers]);
 
+  // Any user activity (scroll, tap, keys…) wakes him and restarts the countdown
+  const lastActivityResetRef = useRef(0);
+  useEffect(() => {
+    const handleActivity = () => {
+      // Throttle so continuous scrolling doesn't churn timers on every event
+      const now = Date.now();
+      if (now - lastActivityResetRef.current < 1000) return;
+      lastActivityResetRef.current = now;
+
+      const m = moodRef.current;
+      if (m === "sleepy" || m === "sleeping") changeMood("idle");
+      if (m === "idle" || m === "sleepy" || m === "sleeping") {
+        startSleepTimers();
+      }
+    };
+    const events = ["pointerdown", "keydown", "wheel", "touchmove", "scroll"];
+    events.forEach((e) =>
+      window.addEventListener(e, handleActivity, {
+        capture: true,
+        passive: true,
+      }),
+    );
+    return () =>
+      events.forEach((e) =>
+        window.removeEventListener(e, handleActivity, { capture: true }),
+      );
+  }, [changeMood, startSleepTimers]);
+
   // Periodic idle chatter
   useEffect(() => {
     idleSpeechTimerRef.current = setInterval(() => {
