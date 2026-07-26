@@ -31,18 +31,21 @@ const IDLE_SPEECH_INTERVAL_MS = 20_000;
 const MESSAGES: Record<string, string[]> = {
   idle: [
     "psst… you need any of that good shit?",
-    "if you dont read today i s2g",
+    "if you dont read today i s2g ill juice ya",
     "do you like imagine dragons?",
-    "i am a possum",
+    "*passes you the doink*",
     "what the fuck is up dennys",
     "who up khruangin they bong",
     "i could go for a snack rn",
-    "im a fuckin guy",
+    "OMWTFYM",
+    "ay man can i bum a smoke rq?",
+    "damb bitch okayyyyy",
+    "boutta read crazy-style on some real shit",
   ],
   sleepy: [
     "just give me 12 minutes brb",
-    "getting a little drowsy…",
-    "just resting my eyes…",
+    "ay bruh im fadin",
+    "im just laying down im NOT sleeping",
     "*yawn*",
   ],
   sleeping: [
