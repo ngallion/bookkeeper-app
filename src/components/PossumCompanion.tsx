@@ -45,7 +45,11 @@ const MESSAGES: Record<string, string[]> = {
     "just resting my eyes…",
     "*yawn*",
   ],
-  sleeping: ["zzzz…", "honk.... shooooo..."],
+  sleeping: [
+    "zzzz…",
+    "honk.... shooooo...",
+    "*snore*  mimimimimimimimimi..."
+  ],
   celebrating: [
     "another one read!! let's mf gooo",
     "woohoooooooo! :3",
