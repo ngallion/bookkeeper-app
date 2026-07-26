@@ -6,6 +6,7 @@ import { BookCover } from "./ui/BookCover";
 import { ScoreSelector } from "./ui/ScoreSelector";
 import { MarkReadModal } from "./MarkReadModal";
 import { BookDetailModal } from "./BookDetailModal";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
 import type { WishlistBook } from "../types/book";
 
 function getProgressPercent(book: WishlistBook): number | null {
@@ -34,6 +35,7 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
   const [query, setQuery] = useState("");
   const [markReadBook, setMarkReadBook] = useState<WishlistBook | null>(null);
   const [detailBook, setDetailBook] = useState<WishlistBook | null>(null);
+  const [deleteBook, setDeleteBook] = useState<WishlistBook | null>(null);
 
   const openDetail = (book: WishlistBook) => {
     setDetailBook(book);
@@ -255,7 +257,7 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                             <BookCheck size={15} />
                           </button>
                           <button
-                            onClick={() => removeFromWishlist(book.id)}
+                            onClick={() => setDeleteBook(book)}
                             title="Remove"
                             className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-red-500/20 text-paper-300/50 hover:text-red-400 flex items-center justify-center transition-colors"
                           >
@@ -366,6 +368,17 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
       )}
       {detailBook && (
         <BookDetailModal book={detailBook} onClose={closeDetail} />
+      )}
+      {deleteBook && (
+        <ConfirmDialog
+          title="Remove from wishlist?"
+          message={`"${deleteBook.title}" will be removed from your wishlist.`}
+          onConfirm={() => {
+            removeFromWishlist(deleteBook.id);
+            setDeleteBook(null);
+          }}
+          onCancel={() => setDeleteBook(null)}
+        />
       )}
     </div>
   );

@@ -6,6 +6,7 @@ import { fetchWorkDescription } from "../services/openLibrary";
 import { BookCover } from "./ui/BookCover";
 import { ScoreSelector } from "./ui/ScoreSelector";
 import { MarkReadModal } from "./MarkReadModal";
+import { ConfirmDialog } from "./ui/ConfirmDialog";
 import { saveCover, deleteCover } from "../services/db";
 import { downscaleImage } from "../services/imageUtils";
 import type { WishlistBook } from "../types/book";
@@ -32,6 +33,7 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
   const [notes, setNotes] = useState(book.notes ?? "");
   const [tagInput, setTagInput] = useState("");
   const [markReadOpen, setMarkReadOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   // Reading progress local state (synced to store immediately, not via Save)
   const [isReading, setIsReading] = useState(book.readingStatus === "reading");
@@ -446,7 +448,7 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
           {/* Footer */}
           <div className="flex gap-2 px-5 py-4 border-t border-paper-300/10 shrink-0">
             <button
-              onClick={handleDelete}
+              onClick={() => setConfirmDeleteOpen(true)}
               className="w-9 h-9 rounded-lg bg-ink-600 hover:bg-red-500/20 text-paper-300/50 hover:text-red-400 flex items-center justify-center transition-colors shrink-0"
               title="Remove from wishlist"
             >
@@ -477,6 +479,14 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
             setMarkReadOpen(false);
             onClose();
           }}
+        />
+      )}
+      {confirmDeleteOpen && (
+        <ConfirmDialog
+          title="Remove from wishlist?"
+          message={`"${book.title}" will be removed from your wishlist.`}
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDeleteOpen(false)}
         />
       )}
     </>

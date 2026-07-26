@@ -58,7 +58,7 @@ export function ManualBookModal({
       id,
       title: title.trim(),
       author: author.trim() || "Unknown author",
-      score: 5,
+      score: 1,
       tags: [],
       firstPublishYear:
         parsedYear && !isNaN(parsedYear) ? parsedYear : undefined,

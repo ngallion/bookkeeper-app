@@ -18,13 +18,29 @@ export function StatsPanel() {
         ? rated.reduce((sum, b) => sum + b.rating, 0) / rated.length
         : null;
 
-    const authorCounts: Record<string, number> = {};
+    const authorStats: Record<
+      string,
+      { count: number; ratingSum: number; ratedCount: number }
+    > = {};
     for (const b of readBooks) {
-      authorCounts[b.author] = (authorCounts[b.author] ?? 0) + 1;
+      const s = (authorStats[b.author] ??= {
+        count: 0,
+        ratingSum: 0,
+        ratedCount: 0,
+      });
+      s.count += 1;
+      if (b.rating > 0) {
+        s.ratingSum += b.rating;
+        s.ratedCount += 1;
+      }
     }
+    const avgFor = (s: { ratingSum: number; ratedCount: number }) =>
+      s.ratedCount > 0 ? s.ratingSum / s.ratedCount : 0;
     const topAuthor =
-      Object.keys(authorCounts).length > 0
-        ? Object.entries(authorCounts).sort((a, b) => b[1] - a[1])[0][0]
+      Object.keys(authorStats).length > 0
+        ? Object.entries(authorStats).sort(
+            ([, a], [, b]) => b.count - a.count || avgFor(b) - avgFor(a),
+          )[0][0]
         : null;
 
     const pagesRead = readBooks

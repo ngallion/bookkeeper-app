@@ -69,7 +69,7 @@ export function SearchModal({
       title: book.title,
       author: book.author_name?.[0] ?? "Unknown author",
       coverId: book.cover_i,
-      score: 5,
+      score: 1,
       tags: [],
       firstPublishYear: book.first_publish_year,
       pages: book.number_of_pages_median,
