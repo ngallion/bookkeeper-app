@@ -129,12 +129,12 @@ export function BookDetailModal({ book, onClose }: BookDetailModalProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:px-4">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center pb-32 sm:pb-0 sm:px-4">
         <div
           className="absolute inset-0 bg-ink-900/80 backdrop-blur-sm"
           onClick={onClose}
         />
-        <div className="relative w-full sm:max-w-lg bg-ink-700 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-paper-300/10 max-h-[92dvh] flex flex-col">
+        <div className="relative w-full sm:max-w-lg bg-ink-700 rounded-2xl shadow-2xl border border-paper-300/10 max-h-[92dvh] flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-paper-300/10 shrink-0">
             <span className="font-semibold text-paper-100">Book details</span>
