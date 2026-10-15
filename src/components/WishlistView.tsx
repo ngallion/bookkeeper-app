@@ -215,14 +215,19 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                       />
                     </button>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2">
+                      <button
+                        onClick={() => openDetail(book)}
+                        className="block w-full text-left hover:opacity-80 transition-opacity"
+                      >
+                        <h3 className="text-paper-100 font-semibold leading-tight break-words">
+                          {book.title}
+                        </h3>
+                      </button>
+                      <div className="mt-1 flex items-start justify-between gap-2">
                         <button
                           onClick={() => openDetail(book)}
                           className="min-w-0 text-left hover:opacity-80 transition-opacity"
                         >
-                          <h3 className="text-paper-100 font-semibold leading-tight truncate">
-                            {book.title}
-                          </h3>
                           <p className="text-paper-300/60 text-sm">
                             {book.author}
                             {book.firstPublishYear
