@@ -222,57 +222,14 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                         <h3 className="text-paper-100 font-semibold leading-tight break-words">
                           {book.title}
                         </h3>
+                        <p className="mt-1 text-paper-300/60 text-sm">
+                          {book.author}
+                          {book.firstPublishYear
+                            ? ` · ${book.firstPublishYear}`
+                            : ""}
+                          {book.pages ? ` · ${book.pages}p` : ""}
+                        </p>
                       </button>
-                      <div className="mt-1 flex items-start justify-between gap-2">
-                        <button
-                          onClick={() => openDetail(book)}
-                          className="min-w-0 text-left hover:opacity-80 transition-opacity"
-                        >
-                          <p className="text-paper-300/60 text-sm">
-                            {book.author}
-                            {book.firstPublishYear
-                              ? ` · ${book.firstPublishYear}`
-                              : ""}
-                            {book.pages ? ` · ${book.pages}p` : ""}
-                          </p>
-                        </button>
-                        <div className="flex gap-1 shrink-0">
-                          <button
-                            onClick={() =>
-                              setReadingProgress(
-                                book.id,
-                                book.readingStatus !== "reading",
-                              )
-                            }
-                            title={
-                              book.readingStatus === "reading"
-                                ? "Stop reading"
-                                : "Mark as currently reading"
-                            }
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                              book.readingStatus === "reading"
-                                ? "bg-green-500/15 text-green-400 hover:bg-red-500/20 hover:text-red-400"
-                                : "bg-ink-600 text-paper-300/50 hover:bg-green-500/15 hover:text-green-400"
-                            }`}
-                          >
-                            <BookOpen size={15} />
-                          </button>
-                          <button
-                            onClick={() => setMarkReadBook(book)}
-                            title="Mark as read"
-                            className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-amber-400/20 text-paper-300/50 hover:text-amber-400 flex items-center justify-center transition-colors"
-                          >
-                            <BookCheck size={15} />
-                          </button>
-                          <button
-                            onClick={() => setDeleteBook(book)}
-                            title="Remove"
-                            className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-red-500/20 text-paper-300/50 hover:text-red-400 flex items-center justify-center transition-colors"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </div>
 
                       {/* Reading progress */}
                       {book.readingStatus === "reading" && (() => {
@@ -358,6 +315,43 @@ export function WishlistView({ onDetailOpenChange }: WishlistViewProps) {
                             className="text-xs bg-transparent text-paper-300/50 placeholder-paper-300/25 outline-none w-20"
                           />
                         </div>
+                      </div>
+                      {/* Actions */}
+                      <div className="mt-3 flex justify-end gap-1">
+                        <button
+                          onClick={() =>
+                            setReadingProgress(
+                              book.id,
+                              book.readingStatus !== "reading",
+                            )
+                          }
+                          title={
+                            book.readingStatus === "reading"
+                              ? "Stop reading"
+                              : "Mark as currently reading"
+                          }
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                            book.readingStatus === "reading"
+                              ? "bg-green-500/15 text-green-400 hover:bg-red-500/20 hover:text-red-400"
+                              : "bg-ink-600 text-paper-300/50 hover:bg-green-500/15 hover:text-green-400"
+                          }`}
+                        >
+                          <BookOpen size={15} />
+                        </button>
+                        <button
+                          onClick={() => setMarkReadBook(book)}
+                          title="Mark as read"
+                          className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-amber-400/20 text-paper-300/50 hover:text-amber-400 flex items-center justify-center transition-colors"
+                        >
+                          <BookCheck size={15} />
+                        </button>
+                        <button
+                          onClick={() => setDeleteBook(book)}
+                          title="Remove"
+                          className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-red-500/20 text-paper-300/50 hover:text-red-400 flex items-center justify-center transition-colors"
+                        >
+                          <Trash2 size={15} />
+                        </button>
                       </div>
                     </div>
                   </div>

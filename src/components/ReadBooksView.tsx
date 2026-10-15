@@ -181,35 +181,14 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
                         <h3 className="text-paper-100 font-semibold leading-tight break-words">
                           {book.title}
                         </h3>
+                        <p className="mt-1 text-paper-300/60 text-sm">
+                          {book.author}
+                          {book.firstPublishYear
+                            ? ` · ${book.firstPublishYear}`
+                            : ""}
+                          {book.pages ? ` · ${book.pages}p` : ""}
+                        </p>
                       </button>
-                      <div className="mt-1 flex items-start justify-between gap-2">
-                        <button
-                          onClick={() => openDetail(book)}
-                          className="min-w-0 text-left hover:opacity-80 transition-opacity"
-                        >
-                          <p className="text-paper-300/60 text-sm">
-                            {book.author}
-                            {book.firstPublishYear
-                              ? ` · ${book.firstPublishYear}`
-                              : ""}
-                            {book.pages ? ` · ${book.pages}p` : ""}
-                          </p>
-                        </button>
-                        <div className="flex gap-1 shrink-0">
-                          <button
-                            onClick={() => openDetail(book)}
-                            className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-amber-400/20 text-paper-300/50 hover:text-amber-400 flex items-center justify-center transition-colors"
-                          >
-                            <Pencil size={14} />
-                          </button>
-                          <button
-                            onClick={() => removeFromRead(book.id)}
-                            className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-red-500/20 text-paper-300/50 hover:text-red-400 flex items-center justify-center transition-colors"
-                          >
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </div>
 
                       {/* Rating */}
                       <div className="mt-2">
@@ -232,6 +211,21 @@ export function ReadBooksView({ onDetailOpenChange }: ReadBooksViewProps) {
                           {book.notes}
                         </p>
                       )}
+                      {/* Actions */}
+                      <div className="mt-3 flex justify-end gap-1">
+                        <button
+                          onClick={() => openDetail(book)}
+                          className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-amber-400/20 text-paper-300/50 hover:text-amber-400 flex items-center justify-center transition-colors"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button
+                          onClick={() => removeFromRead(book.id)}
+                          className="w-8 h-8 rounded-lg bg-ink-600 hover:bg-red-500/20 text-paper-300/50 hover:text-red-400 flex items-center justify-center transition-colors"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
